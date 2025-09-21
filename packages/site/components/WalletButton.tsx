@@ -39,12 +39,7 @@ export const WalletButton = () => {
     if (isConnected && chainId && chainId !== sepolia.id && switchChain) {
       console.log(`Auto switching from chainId ${chainId} to Sepolia (${sepolia.id})`);
       try {
-        const result = switchChain({ chainId: sepolia.id });
-        if (result && typeof result.catch === 'function') {
-          result.catch((error) => {
-            console.warn('Failed to auto switch to Sepolia:', error);
-          });
-        }
+        switchChain({ chainId: sepolia.id });
       } catch (error) {
         console.warn('Failed to auto switch to Sepolia:', error);
       }
