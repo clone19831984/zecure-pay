@@ -238,6 +238,10 @@ export const useTokenFaucet = (parameters: {
       );
       
       const weiBn = result[handle];
+      if (typeof weiBn === 'boolean') {
+        setMessage("Invalid balance value");
+        return;
+      }
       const formattedBalance = ethers.formatUnits(weiBn, 6); // 6 decimals
       setDecryptedBalance(formattedBalance);
       setMessage(`✅ Balance đã được decrypt: ${formattedBalance} tokens`);

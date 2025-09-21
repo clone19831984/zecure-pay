@@ -319,6 +319,11 @@ export function usePayrollUSDT({
         );
 
         const weiBn = result[handle]; // giá trị wei dạng BigInt/string
+        if (typeof weiBn === 'boolean') {
+          setError("Invalid balance value");
+          setStatus("error");
+          return;
+        }
         setDecryptedBalance(ethers.formatUnits(weiBn, 6)); // USDT có 6 decimals
         setStatus("success");
       } catch (err) {
