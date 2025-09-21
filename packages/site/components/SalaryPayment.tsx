@@ -14,7 +14,6 @@ export const SalaryPayment = () => {
     instance: fhevmInstance,
     status: fhevmStatus,
     error: fhevmError,
-    provider,
     chainId,
     isConnected,
     ethersSigner,
@@ -403,7 +402,7 @@ export const SalaryPayment = () => {
                       <h4 className="text-lg font-medium text-blue-800">Members of {selectedGroup}</h4>
                     </div>
                     <div className="space-y-3">
-                      {selectedUsers.map((user, index) => (
+                      {selectedUsers.map((user) => (
                         <div key={user} className="p-3 bg-white rounded border relative">
                           <div className="flex items-center justify-between">
                             <div className="flex-1">

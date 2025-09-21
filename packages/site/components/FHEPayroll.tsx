@@ -13,7 +13,6 @@ export const FHEPayroll = () => {
     instance: fhevmInstance,
     status: fhevmStatus,
     error: fhevmError,
-    provider,
     chainId,
     isConnected,
     ethersSigner,
@@ -28,9 +27,7 @@ export const FHEPayroll = () => {
     depositToManyUsers,
     withdraw,
     allowDecryptForMe,
-    allowDecryptForOwner,
     fetchBalance,
-    getUsers,
     decryptedBalance,
     isOwner,
     ownerWithdraw,
@@ -426,7 +423,7 @@ export const FHEPayroll = () => {
                   <div className="mb-4">
                     <h4 className="text-lg font-medium mb-2">Members of {selectedGroup}</h4>
                     <div className="space-y-2 max-h-40 overflow-y-auto">
-                      {selectedUsers.map((user, index) => (
+                      {selectedUsers.map((user) => (
                         <div key={user} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
                           <div className="flex-1">
                             <div className="text-sm font-medium text-blue-600">

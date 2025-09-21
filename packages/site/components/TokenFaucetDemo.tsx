@@ -16,7 +16,7 @@ export const TokenFaucetDemo = () => {
   const [mounted, setMounted] = useState(false);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [usdtBalance, setUsdtBalance] = useState<string>("0");
-  const [message, setMessage] = useState<string>("");
+  const [, setMessage] = useState<string>("");
   const [isMintingUsdt, setIsMintingUsdt] = useState<boolean>(false);
   const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
   const {
@@ -128,9 +128,9 @@ export const TokenFaucetDemo = () => {
       
       // Refresh balance
       await checkUsdtBalance();
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error minting USDT:', error);
-      setMessage(`Mint USDT thất bại: ${error.message}`);
+      setMessage(`Mint USDT thất bại: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setIsMintingUsdt(false);
     }
@@ -142,7 +142,7 @@ export const TokenFaucetDemo = () => {
       checkEthBalance();
       checkUsdtBalance();
     }
-  }, [ethersSigner, mounted]);
+  }, [ethersSigner, mounted, checkEthBalance, checkUsdtBalance]);
 
   if (!mounted) {
     return (
@@ -279,14 +279,14 @@ export const TokenFaucetDemo = () => {
             </p>
             <div className="flex gap-2 mb-4">
               <button
-                onClick={() => tokenFaucet.airDropToken(100n * (10n ** 6n))}
+                onClick={() => tokenFaucet.airDropToken(BigInt(100) * (BigInt(10) ** BigInt(6)))}
                 disabled={!tokenFaucet.canMint || tokenFaucet.isMinting}
                 className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
               >
                 {tokenFaucet.isMinting ? 'Minting...' : 'Faucet'}
               </button>
               <button
-                onClick={() => tokenFaucet.mintToken(100n * (10n ** 6n))}
+                onClick={() => tokenFaucet.mintToken(BigInt(100) * (BigInt(10) ** BigInt(6)))}
                 disabled={!tokenFaucet.canMint || tokenFaucet.isMinting}
                 className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
               >
