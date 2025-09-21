@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import { useFhevmContext } from "../contexts/FhevmContext";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
@@ -49,7 +49,7 @@ export const TokenFaucetDemo = () => {
   }, []);
 
   // Function để check ETH balance
-  const checkEthBalance = async () => {
+  const checkEthBalance = useCallback(async () => {
     if (!ethersSigner) return;
     
     try {
@@ -67,10 +67,10 @@ export const TokenFaucetDemo = () => {
       console.error('Error checking ETH balance:', error);
       setMessage('Error checking ETH balance');
     }
-  };
+  }, [ethersSigner, ethersReadonlyProvider]);
 
   // Function để check USDT balance
-  const checkUsdtBalance = async () => {
+  const checkUsdtBalance = useCallback(async () => {
     if (!ethersSigner || !ethersReadonlyProvider) return;
     
     try {
@@ -97,7 +97,7 @@ export const TokenFaucetDemo = () => {
       console.error('Error checking USDT balance:', error);
       setMessage('Error checking USDT balance');
     }
-  };
+  }, [ethersSigner, ethersReadonlyProvider]);
 
   // Function để mint USDT cho user
   const mintUsdt = async () => {
