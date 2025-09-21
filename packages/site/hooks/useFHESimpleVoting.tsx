@@ -8,7 +8,7 @@ type Status = "idle" | "loading" | "success" | "error";
 
 interface UseFHESimpleVotingProps {
   fhevmInstance: any;                // instance từ @zama-fhe/relayer-sdk
-  ethersSigner: ethers.Signer | null;
+  ethersSigner: ethers.JsonRpcSigner | undefined;
   ethersReadonlyProvider: ethers.Provider | null;
   chainId: number;
 }
@@ -40,7 +40,7 @@ export const useFHESimpleVoting = ({
   }, [contractAddress, ethersReadonlyProvider]);
 
   const contractWithSigner = useMemo(() => {
-    if (!contractAddress || !ethersSigner) return null;
+    if (!contractAddress || !ethersSigner) return undefined;
     return new ethers.Contract(contractAddress, SimpleFHEVotingABI.abi, ethersSigner);
   }, [contractAddress, ethersSigner]);
 
