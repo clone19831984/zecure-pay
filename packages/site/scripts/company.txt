@@ -1,0 +1,109 @@
+# WALLETS GENERATED - 2025-09-19T08:40:01.584Z
+# Total: 20 wallets
+
+## Wallet 1 - DEV1
+Address:    0x972e3819bEa4e1E102c2092E8736b0FEA49fB83D
+Private Key: 0xb2814e3b7b1445e8523d05b363c7ad45868f6a16d28a7cb7a1354ad7a3d96ed3
+Mnemonic:   absorb domain switch before fiction tool wise swap stem silk topple duty
+
+## Wallet 2 - DEV2
+Address:    0x8c2620fF48e761e1FcD014dbB96D7bf81c97D4a0
+Private Key: 0x1622d5993936424f906181a520dfaf06926a7717c333039f699cc26962a0b356
+Mnemonic:   curtain risk laugh umbrella gauge immense either hamster nose flush all chief
+
+## Wallet 3 - DEV3
+Address:    0x4892310c68f0c594F0814355747DdD02a1D2A58f
+Private Key: 0xa00a6719c19fa463552be01175b65462c87392c7a02da731ce78664fa9540465
+Mnemonic:   coin glad crash meadow divide weasel purity crawl dwarf assume fresh game
+
+## Wallet 4 - DEV4
+Address:    0xA84dF0Ebf2F9A4151a52F5837f27a9611B9b8004
+Private Key: 0x6aa85767af4e897eee9c376888bf37b65674b83b5921596c645a0dc94f649bf9
+Mnemonic:   will struggle goat comfort insane mean payment hospital razor fix unhappy second
+
+## Wallet 5 - DEV5
+Address:    0x690f7589f71D7A274aa9dDaf9741D17cDdC413C8
+Private Key: 0x72e4dc08a5b2a2111abe90ea95719b34b3dc0608fa11611b4c1a2cc2d58266f7
+Mnemonic:   mountain pelican wait noise oil six own miss deny next reason rescue
+
+## Wallet 6 - DEV6
+Address:    0x609a3b6458Aba348878420B3557851f280E1e64b
+Private Key: 0xe8e82d522276d979c2b79c5b5509643e764d651434aae3eeb80f7a646fe93dec
+Mnemonic:   frequent sadness affair calm lumber letter torch coyote fatal exit stamp viable
+
+## Wallet 7 - DEV7
+Address:    0x14e850AA838F6D9F19BC6e29E9ce0185D68af2Cb
+Private Key: 0x96053e7bfe5ee2d7d5f2b18780b7455dfde6a0ca576d4accde0c04462bb9ce1a
+Mnemonic:   horse benefit sibling monkey term young always mirror expand gap logic large
+
+## Wallet 8 - Marketing1
+Address:    0xC7FA98f6d04B59008AB69B01E767FE0f2A792C2A
+Private Key: 0xb76e6ae05a846eaa916cd2d912664312b4dd3c981a0c889472159340ef5f3410
+Mnemonic:   car defy digital seek proud adjust key erosion world stuff roast guilt
+
+## Wallet 9 - Marketing2
+Address:    0x0D66f6fc4d2499f15E28c9ebC1786A9F8AceE3a2
+Private Key: 0x16ac7529e0534963f06750df140b202ae8359283a08cd9ee45462b68c30e4ef3
+Mnemonic:   label follow staff network exotic census identify wrist wise arctic aunt initial
+
+## Wallet 10 - Marketing3
+Address:    0x7C2A7C77ea066bDBc191F390F93D0f9D6e8FBfEa
+Private Key: 0x2b528704ed208cbe9819355b6c52601085c938a3e9c76f07b2430bfae12eee08
+Mnemonic:   oil senior memory autumn system moon ahead night interest poverty attitude total
+
+## Wallet 11 - Marketing4
+Address:    0x297bFaFB4F718d6DD44d44046A82fA0CE6e7eFf5
+Private Key: 0x4b3989295818e763d6e935aa1d279071888913485411e18e02f3d492872b8b6a
+Mnemonic:   income fitness front pig hen turtle raven profit name embrace space gate
+
+## Wallet 12 - Marketing5
+Address:    0xb715fa893DAB97107BA73df5706913bF246d744D
+Private Key: 0x7d04fb185129db16bba16db26c499504fe4c8c03362c1a7910d44549668ca981
+Mnemonic:   struggle cloud wink awake wool quit caught tide kit run fix novel
+
+## Wallet 13 - Manager1
+Address:    0x877164Fa6fc582A2fe381712db8394eA8C4dB853
+Private Key: 0x8063c2911efef88730d9370de83104bd261b91d8d3cc3c0abdad7b103af6df2e
+Mnemonic:   slice urge carpet fish ready hood trial slender destroy donate device essence
+
+## Wallet 14 - Manager2
+Address:    0xCf93064A866b3E5C1A44B9Bea3A243d70569BB04
+Private Key: 0x5f9f01b45cbe40d27060c9d49a68e930dcd65f4f6ff65e3f35ff5b92047d2fb4
+Mnemonic:   reform loud pumpkin pretty force skin edit beauty grab excite fee aware
+
+## Wallet 15 - Manager3
+Address:    0xE906Fe16f73706523B938d65cE71e5cb1e6D597C
+Private Key: 0xfc17c7e7b0ebb94cd89197a0bcae3bdf63cf88a0b45eb7002463b315fdeb4dae
+Mnemonic:   detect object jacket source flash bronze start human crater dance stadium beauty
+
+## Wallet 16 - Support1
+Address:    0x5084C7c47232767D5fe308736f2fF8D6e81ADF88
+Private Key: 0xdf2034061158166877adf47ff6db58ba6d83c0b4bb2223ca678805819ef5c47d
+Mnemonic:   gesture van nut uniform dawn tired average monkey movie win drum venture
+
+## Wallet 17 - Support2
+Address:    0x0A3E11f3Dd353feFDAA60026C2FD48C16BC31E97
+Private Key: 0x1b0aafb4d09c887dab1428bc636a08a0f1ddff6170fcf9bfb7c739a76ffff4ea
+Mnemonic:   reward insane mutual rice library bonus pluck multiply essence spoil other food
+
+## Wallet 18 - Support3
+Address:    0xbE6bcB2A8B91067A5168359053583EFE61b04B2D
+Private Key: 0x88d93cb1d581bcb8363f0d73761b72542dadddd8bf211e5f31c2257affd47f7b
+Mnemonic:   humor grain total world business bargain retreat pumpkin strong general sock wash
+
+## Wallet 19 - QA1
+Address:    0x0C8142680c6a93587d5C84E191d32e955B58c89D
+Private Key: 0xe5952451a9cb9e78eac6f4f508a05149c8a0fb15b82a47cde54f30e29177e197
+Mnemonic:   must virtual rifle arrive hip gift allow luxury parent venue ridge fix
+
+## Wallet 20 - QA2
+Address:    0x4e6b6914fEF2f6B99F0A72f7b43ceF5c1Cd81947
+Private Key: 0x810b78e7c73dec2b57605394ff027523e37cb1a528d15e99f4fcf0048900ca50
+Mnemonic:   mechanic fall afraid record clean various mail album jaguar dash border arm
+
+
+⚠️  IMPORTANT SECURITY NOTES:
+- Keep private keys SECRET and NEVER share them
+- Store private keys in a secure location
+- Never commit private keys to version control
+- Use these wallets only for testing on Sepolia testnet
