@@ -16,7 +16,7 @@ export interface UseWagmiEthersSignerState {
 }
 
 export const useWagmiEthersSigner = (): UseWagmiEthersSignerState => {
-  const { address, isConnected, chainId, status, error } = useAccount();
+  const { address, isConnected, chainId, status } = useAccount();
   const { data: walletClient } = useWalletClient();
 
   const ethersSigner = useMemo(() => {
@@ -55,7 +55,7 @@ export const useWagmiEthersSigner = (): UseWagmiEthersSignerState => {
     chainId,
     accounts,
     isConnected,
-    error: error as Error | undefined,
+    error: undefined, // Wagmi v2 không có error trong useAccount
     ethersSigner,
     ethersReadonlyProvider,
     address,
