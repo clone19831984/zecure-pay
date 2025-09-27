@@ -1,168 +1,298 @@
-# FHEVM React Template
+# ZecurePay - Secure Payroll Platform
 
-The FHEVM React Template is an ultra-minimal React project for building and running an FHEVM-enabled dApp.
-It works alongside the [fhevm-hardhat-template](https://github.com/zama-ai/fhevm-hardhat-template)
-and provides a simple development frontend for interacting with the `FHECounter.sol` contract.
+ZecurePay is a secure payroll platform built on Zama's Fully Homomorphic Encryption (FHE) technology, enabling private processing of sensitive financial data on the Ethereum blockchain.
 
-This template also illustrates how to run your FHEVM-dApp on both Sepolia as well as a local Hardhat Node (much faster).
+## 📋 Table of Contents
 
-> [!IMPORTANT]
-> Please follow the detailed installation instructions [below](#install).
+- [Part 1: Introduction to ZecurePay](#part-1-introduction-to-zecurepay)
+- [Part 2: Deployment Guide](#part-2-deployment-guide)
+- [Part 3: Frontend Guide](#part-3-frontend-guide)
+- [Project Structure](#project-structure)
+- [References](#references)
 
-## Features
+---
 
-- **@zama-fhe/relayer-sdk**: Fully Homomorphic Encryption for Ethereum Virtual Machine
-- **React**: Modern UI framework for building interactive interfaces
-- **Next.js**: Next-generation frontend build tool
-- **Tailwind**: Utility-first CSS framework for rapid UI development
+## Part 1: Introduction to ZecurePay
 
-## Requirements
+### 🔐 Zama's FHE Technology
 
-- You need to have Metamask browser extension installed on your browser.
+**Fully Homomorphic Encryption (FHE)** is an advanced encryption technology that allows computations to be performed on encrypted data without needing to decrypt it. This means:
 
-## Local Hardhat Network (to add in MetaMask)
+- ✅ **Absolute Privacy**: Data remains encrypted even during processing
+- ✅ **Strong Security**: No one can view the data content, including validator nodes
+- ✅ **Secure Computation**: Complex calculations can be performed on encrypted data
+- ✅ **Transparent Auditing**: All transactions are recorded on blockchain while data remains protected
 
-Follow the step-by-step guide in the [Hardhat + MetaMask](https://docs.metamask.io/wallet/how-to/run-devnet/) documentation to set up your local devnet using Hardhat and MetaMask.
+### 💼 How ZecurePay Works
 
-- Name: Hardhat
-- RPC URL: http://127.0.0.1:8545
-- Chain ID: 31337
-- Currency symbol: ETH
+ZecurePay uses FHE to protect employee salary information:
 
-## Install
-
-### Automatic install
-
-1. Clone this repository.
-2. From the repo root, run:
-
-```sh
-# - git clone "https://github.com/zama-ai/fhevm-hardhat-template.git" into <root>/packages
-# - npm install
-# - auto-depoy on hardhat node
-node ./scripts/install.mjs
+#### **1. Team Management**
+```
+Manager Team (2 people) → MGR1, MGR2
+Dev Team (5 people)     → DEV1-DEV5  
+Marketing Team (7 people) → MAR1-MAR7
 ```
 
-### Manual install
+#### **2. Payroll Process**
 
-1. Clone this repository.
-2. From the repo root, execute the following:
+**Step 1: Contract Setup**
+- Owner deploys `Payroll.sol` smart contract on Sepolia
+- Funds contract with USDT for payroll
 
-```sh
-cd ./packages
-git clone "https://github.com/zama-ai/fhevm-hardhat-template.git"
-cd ..
+**Step 2: Salary Transfer (Owner)**
+- **Public Transfer**: Transparent salary transfer (amount visible)
+- **FHE Transfer**: Private salary transfer (amount encrypted)
+
+**Step 3: Salary Withdrawal (Employee)**
+- Employees can view encrypted salary balance
+- Request decryption to see actual amount
+- Withdraw funds to personal wallet
+
+#### **3. Security Features**
+
+- 🔒 **Encrypted Salaries**: Only owner and corresponding employee can decrypt
+- 🔄 **Auto-refresh**: Balance automatically updates every 30 seconds
+- 👥 **Team Management**: Easy employee grouping by teams
+- 📊 **Dashboard**: Monitor contract status and transactions
+
+---
+
+## Part 2: Deployment Guide
+
+### 🚀 System Requirements
+
+- Node.js >= 18.0.0
+- npm or yarn
+- MetaMask browser extension
+- Git
+
+### 📦 Installation
+
+#### **Step 1: Clone Repository**
+
+```bash
+git clone https://github.com/clone19831984/zecure-pay
+cd zecure-pay
+```
+
+#### **Step 2: Install Dependencies**
+
+```bash
+# Install dependencies for entire monorepo
 npm install
+
+# Or use yarn
+yarn install
 ```
 
-## Setup
+#### **Step 3: Environment Configuration**
 
-1. Setup your hardhat environment variables:
+Create `.env` file in `packages/site` directory:
 
-Follow the detailed instructions in the [FHEVM documentation](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional) to setup `MNEMONIC` + `INFURA_API_KEY` Hardhat environment variables
+```bash
+# Sepolia Network Configuration
+NEXT_PUBLIC_CHAIN_ID=11155111
+NEXT_PUBLIC_RPC_URL=https://sepolia.infura.io/v3/YOUR_INFURA_KEY
 
-2. Start a local Hardhat node (new terminal):
-
-```sh
-cd packages/fhevm-hardhat-template
-npx hardhat node --verbose
-# Default RPC: http://127.0.0.1:8545  | chainId: 31337
+# Contract Addresses (will be updated after deployment)
+NEXT_PUBLIC_PUBLIC_TOKEN_ADDRESS=
+NEXT_PUBLIC_PAYROLL_ADDRESS=
+NEXT_PUBLIC_RELAYER_ADDRESS=
 ```
 
-3. Deploy `FHECounter` to the local node:
+#### **Step 4: Deploy Smart Contracts**
 
-```sh
-# still in packages/fhevm-hardhat-template
+```bash
+# Navigate to contracts directory
+cd packages/contracts
+
+# Deploy to Sepolia network
+npx hardhat deploy --network sepolia
+
+# Or deploy to local network for testing
 npx hardhat deploy --network localhost
 ```
 
-4. Deploy to Sepolia:
+#### **Step 5: Update Contract Addresses**
 
-Follows instructions in the [FHEVM documentation to setup your Hardhat project for Sepolia](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional)
+After deployment, update contract addresses in `.env` file:
 
-```sh
-# still in packages/fhevm-hardhat-template
-npx hardhat deploy --network sepolia
+```bash
+NEXT_PUBLIC_PUBLIC_TOKEN_ADDRESS=0x...
+NEXT_PUBLIC_PAYROLL_ADDRESS=0x...
+NEXT_PUBLIC_RELAYER_ADDRESS=0x...
 ```
 
-## Run frontend in mock mode
+### 🌐 MetaMask Configuration
 
-1. Start a local Hardhat node (new terminal):
+#### **Add Sepolia Network:**
 
-```sh
-cd packages/fhevm-hardhat-template
-npx hardhat node --verbose
+1. Open MetaMask
+2. Click network dropdown
+3. Select "Add network"
+4. Enter information:
+   - **Network Name**: Sepolia Testnet
+   - **RPC URL**: https://sepolia.infura.io/v3/YOUR_INFURA_KEY
+   - **Chain ID**: 11155111
+   - **Currency Symbol**: ETH
+
+#### **Add Local Network (for testing):**
+
+- **Network Name**: Hardhat Local
+- **RPC URL**: http://127.0.0.1:8545
+- **Chain ID**: 31337
+- **Currency Symbol**: ETH
+
+---
+
+## Part 3: Frontend Guide
+
+### 🎯 Running the Application
+
+#### **Development Mode:**
+
+```bash
+# From packages/site directory
+npm run dev
+
+# Or
+yarn dev
 ```
 
-2. From the `<root>/packages/site` run
+Access: `http://localhost:3000`
 
-```sh
-npm run dev:mock
+#### **Production Build:**
+
+```bash
+# Build application
+npm run build
+
+# Run production server
+npm start
 ```
 
-3. In your browser open `http://localhost:3000`
+### 🔧 Component Structure
 
-4. Open Metamask connect to local Hardhat node
-   i. Select Add network.
-   ii. Select Add a network manually.
-   iii. Enter your Hardhat Network RPC URL, http://127.0.0.1:8545/ (or http://localhost:8545).
-   iv. Enter your Hardhat Network chain ID, 31337 (or 0x539 in hexadecimal format).
+#### **Core Components:**
 
-## How to fix Hardhat Node + Metamask Errors ?
+- **`TabNavigation.tsx`**: Navigation between tabs
+- **`FundContract.tsx`**: Contract fund management (Owner only)
+- **`SalaryPayment.tsx`**: Salary payment and withdrawal
+- **`Faucet.tsx`**: Get test USDT
+- **`SubmitPayrollForm.tsx`**: Payroll registration form
 
-When using MetaMask as a wallet provider with a development node like Hardhat, you may encounter two common types of errors:
+#### **Hooks:**
 
-### 1. ⚠️ Nonce Mismatch ❌💥
+- **`usePayroll.tsx`**: Manages all smart contract interactions
+- **`useFhevmContext.tsx`**: Context for FHEVM operations
 
-MetaMask tracks wallet nonces (the number of transactions sent from a wallet). However, if you restart your Hardhat node, the nonce is reset on the dev node, but MetaMask does not update its internal nonce tracking. This discrepancy causes a nonce mismatch error.
+### 👤 User Guide
 
-### 2. ⚠️ View Function Call Result Mismatch ❌💥
+#### **For Owner (Management):**
 
-MetaMask caches the results of view function calls. If you restart your Hardhat node, MetaMask may return outdated cached data corresponding to a previous instance of the node, leading to incorrect results.
+1. **Connect Wallet**: Click "Connect Wallet" in top right corner
+2. **Dashboard**: 
+   - Deposit USDT into contract
+   - Withdraw USDT from contract
+   - View contract balance
+3. **Salary Payment**:
+   - Select employee from dropdown
+   - Enter amount
+   - Choose "Public Transfer" or "FHE Transfer"
 
-### ✅ How to Fix Nonce Mismatch:
+#### **For Employee:**
 
-To fix the nonce mismatch error, simply clear the MetaMask cache:
+1. **Connect Wallet**: Ensure wallet is registered in the system
+2. **View Salary**: 
+   - "Salary Payment" tab shows salary balance
+   - Click "Allow Decrypt" to view actual amount
+3. **Withdraw Salary**:
+   - Enter amount to withdraw
+   - Click "Withdraw"
 
-1. Open the MetaMask browser extension.
-2. Select the Hardhat network.
-3. Go to Settings > Advanced.
-4. Click the "Clear Activity Tab" red button to reset the nonce tracking.
+#### **Faucet (Test USDT):**
 
-The correct way to do this is also explained [here](https://docs.metamask.io/wallet/how-to/run-devnet/).
+1. Connect wallet
+2. Click "Get Test USDT" to receive 1000 test USDT
 
-### ✅ How to Fix View Function Return Value Mismatch:
+### 🐛 Troubleshooting
 
-To fix the view function result mismatch:
+#### **Common Issues:**
 
-1. Restart the entire browser. MetaMask stores its cache in the extension's memory, which cannot be cleared by simply clearing the browser cache or using MetaMask's built-in cache cleaning options.
+1. **"Nonce mismatch"**: 
+   - Open MetaMask → Settings → Advanced → Clear Activity Tab
 
-By following these steps, you can ensure that MetaMask syncs correctly with your Hardhat node and avoid potential issues related to nonces and cached view function results.
+2. **"Contract not found"**:
+   - Check contract addresses in `.env`
+   - Ensure contracts are deployed
 
-## Project Structure Overview
+3. **"Insufficient balance"**:
+   - Use Faucet to get test USDT
+   - Check balance in MetaMask
 
-### Key Files/Folders
+4. **"Network error"**:
+   - Check RPC URL
+   - Ensure connected to correct network
 
-- **`<root>/packages/site/fhevm`**: This folder contains the essential hooks needed to interact with FHEVM-enabled smart contracts. It is meant to be easily copied and integrated into any FHEVM + React project.
+---
 
-- **`<root>/packages/site/hooks/useFHECounter.tsx`**: A simple React custom hook that demonstrates how to use the `useFhevm` hook in a basic use case, serving as an example of integration.
+## Project Structure
 
-### Secondary Files/Folders
+```
+zecure-pay/
+├── packages/
+│   ├── site/                    # Frontend React app
+│   │   ├── app/                # Next.js app directory
+│   │   ├── components/         # React components
+│   │   ├── hooks/             # Custom hooks
+│   │   ├── public/            # Static assets
+│   │   └── scripts/           # Utility scripts
+│   ├── contracts/             # Smart contracts
+│   │   ├── contracts/         # Solidity files
+│   │   ├── deploy/           # Deployment scripts
+│   │   └── hardhat.config.js  # Hardhat configuration
+│   └── shared/               # Shared utilities
+├── package.json              # Root package.json
+└── README.md                # This file
+```
 
-- **`<root>/packages/site/hooks/metamask`**: This folder includes hooks designed to manage the MetaMask Wallet provider. These hooks can be easily adapted or replaced to support other wallet providers, following the EIP-6963 standard,
-- Additionally, the project is designed to be flexible, allowing developers to easily replace `ethers.js` with a more React-friendly library of their choice, such as `Wagmi`.
+### 📁 Key Files:
 
-## Documentation
+- **`groups.ts`**: Defines employee groups
+- **`company.txt`**: Employee wallet list with private keys
+- **`Payroll.sol`**: Main payroll smart contract
+- **`PublicToken.sol`**: USDT token contract
 
-- [Hardhat + MetaMask](https://docs.metamask.io/wallet/how-to/run-devnet/): Set up your local devnet step by step using Hardhat and MetaMask.
+---
+
+## References
+
+### 📚 Zama Documentation:
 - [FHEVM Documentation](https://docs.zama.ai/protocol/solidity-guides/)
-- [FHEVM Hardhat](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat)
-- [@zama-fhe/relayer-sdk Documentation](https://docs.zama.ai/protocol/relayer-sdk-guides/)
-- [Setting up MNEMONIC and INFURA_API_KEY](https://docs.zama.ai/protocol/solidity-guides/getting-started/setup#set-up-the-hardhat-configuration-variables-optional)
-- [React Documentation](https://reactjs.org/)
-- [FHEVM Discord Community](https://discord.com/invite/zama)
-- [GitHub Issues](https://github.com/zama-ai/fhevm-react-template/issues)
+- [FHEVM Hardhat Guide](https://docs.zama.ai/protocol/solidity-guides/development-guide/hardhat)
+- [Relayer SDK](https://docs.zama.ai/protocol/relayer-sdk-guides/)
 
-## License
+### 🔗 External Resources:
+- [MetaMask Documentation](https://docs.metamask.io/)
+- [Ethereum Sepolia Testnet](https://sepolia.dev/)
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
+
+### 💬 Community:
+- [Zama Discord](https://discord.com/invite/zama)
+- [GitHub Issues](https://github.com/clone19831984/zecure-pay/issues)
+
+### 🌐 Live Demo:
+- **ZecurePay App**: [https://zecurepay.vercel.app/](https://zecurepay.vercel.app/)
+- **GitHub Repository**: [https://github.com/clone19831984/zecure-pay](https://github.com/clone19831984/zecure-pay)
+
+---
+
+## 📄 License
 
 This project is licensed under the BSD-3-Clause-Clear License - see the LICENSE file for details.
+
+---
+
+**ZecurePay** - Secure payroll and private payments powered by Zama's FHE technology.
