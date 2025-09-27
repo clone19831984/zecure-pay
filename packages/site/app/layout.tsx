@@ -18,7 +18,6 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script src="https://unpkg.com/@zama-fhe/relayer-sdk@0.2.0/dist/index.umd.js" async></script>
       </head>
       <body className="zama-bg text-foreground antialiased">
         <div className="fixed inset-0 w-full h-full zama-bg z-[-20] min-w-[850px]" />

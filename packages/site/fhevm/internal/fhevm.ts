@@ -1,3 +1,5 @@
+"use client";
+
 import { isAddress, Eip1193Provider, JsonRpcProvider } from "ethers";
 import type {
   FhevmInitSDKOptions,
@@ -5,7 +7,9 @@ import type {
   FhevmLoadSDKType,
   FhevmWindowType,
 } from "./fhevmTypes";
+
 import { isFhevmWindowType, RelayerSDKLoader } from "./RelayerSDKLoader";
+import { initSDK, createInstance, SepoliaConfig } from "@zama-fhe/relayer-sdk/bundle";
 import { publicKeyStorageGet, publicKeyStorageSet } from "./PublicKeyStorage";
 import { FhevmInstance, FhevmInstanceConfig } from "../fhevmTypes";
 
@@ -27,7 +31,7 @@ function throwFhevmError(
 }
 
 const isFhevmInitialized = (): boolean => {
-  if (!isFhevmWindowType(window, console.log)) {
+  if (typeof window === 'undefined' || !isFhevmWindowType(window, console.log)) {
     return false;
   }
   return window.relayerSDK.__initialized__ === true;
@@ -41,7 +45,7 @@ const fhevmLoadSDK: FhevmLoadSDKType = () => {
 const fhevmInitSDK: FhevmInitSDKType = async (
   options?: FhevmInitSDKOptions
 ) => {
-  if (!isFhevmWindowType(window, console.log)) {
+  if (typeof window === 'undefined' || !isFhevmWindowType(window, console.log)) {
     throw new Error("window.relayerSDK is not available");
   }
   const result = await window.relayerSDK.initSDK(options);
@@ -260,14 +264,25 @@ export const createFhevmInstance = async (parameters: {
 
   throwIfAborted();
 
-  if (!isFhevmWindowType(window, console.log)) {
+  if (typeof window === 'undefined' || !isFhevmWindowType(window, console.log)) {
     notify("sdk-loading");
 
-    // throws an error if failed
-    await fhevmLoadSDK();
-    throwIfAborted();
-
-    notify("sdk-loaded");
+    // Initialize WASM first, then create instance
+    try {
+      if (typeof window !== 'undefined') {
+        const { initSDK, createInstance, SepoliaConfig } = await import("@zama-fhe/relayer-sdk/bundle");
+        await initSDK(); // Load FHE WASM
+        const config = { ...SepoliaConfig, network: window.ethereum };
+        const sdk = await createInstance(config);
+        (window as any).relayerSDK = sdk;
+        notify("sdk-loaded");
+      }
+    } catch (error) {
+      // Fallback to CDN if static import fails
+      await fhevmLoadSDK();
+      throwIfAborted();
+      notify("sdk-loaded");
+    }
   }
 
   // notify that state === "sdk-loaded"
