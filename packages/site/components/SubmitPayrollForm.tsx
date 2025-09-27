@@ -25,7 +25,8 @@ export const SubmitPayrollForm = ({ isOpen, onClose }: SubmitPayrollFormProps) =
             "https://docs.google.com/forms/d/e/1FAIpQLSelTThEAyDwMDy5lHrV64wbl9EPKyNQqeqSJuoM0fCmmgpOow/viewform";
           const url = `${base}?entry.2005620554=${encodeURIComponent(address)}`;
           setFormUrl(url);
-        } catch (err) {
+        } catch {
+          // Silent error handling
         }
       }
     }
@@ -68,7 +69,7 @@ export const SubmitPayrollForm = ({ isOpen, onClose }: SubmitPayrollFormProps) =
         </div>
         
         <p className="text-sm text-gray-600 mb-4">
-          Rewards will be sent within 4-8 hours, Please come back to explore Zama's FHE tech in action.
+          Rewards will be sent within 4-8 hours, Please come back to explore Zama&apos;s FHE tech in action.
         </p>
         
         {wallet && (
@@ -96,7 +97,7 @@ export const SubmitPayrollForm = ({ isOpen, onClose }: SubmitPayrollFormProps) =
               className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
             />
             <label htmlFor="dontShowAgain" className="text-sm text-gray-700 font-medium cursor-pointer">
-              Don't show this form again
+              Don&apos;t show this form again
             </label>
           </div>
         </div>

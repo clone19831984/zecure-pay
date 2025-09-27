@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ethers } from "ethers";
 import { useFhevmContext } from "../contexts/FhevmContext";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
@@ -77,7 +77,7 @@ export const SalaryPayment = () => {
   }, []);
 
   // Function để load USDT public balance
-  const loadUsdtBalance = async () => {
+  const loadUsdtBalance = useCallback(async () => {
     if (ethersReadonlyProvider && ethersSigner) {
       try {
         setIsRefreshingBalance(true);
@@ -106,12 +106,12 @@ export const SalaryPayment = () => {
         setIsRefreshingBalance(false);
       }
     }
-  };
+  }, [ethersReadonlyProvider, ethersSigner]);
 
   // Load USDT public balance when component mounts
   useEffect(() => {
     loadUsdtBalance();
-  }, [ethersReadonlyProvider, ethersSigner]);
+  }, [ethersReadonlyProvider, ethersSigner, loadUsdtBalance]);
 
   // Auto refresh balance every 30 seconds
   useEffect(() => {
@@ -122,7 +122,7 @@ export const SalaryPayment = () => {
     }, 30000); // 30 seconds
 
     return () => clearInterval(interval);
-  }, [isConnected, ethersSigner, ethersReadonlyProvider]);
+  }, [isConnected, ethersSigner, ethersReadonlyProvider, loadUsdtBalance]);
 
   // Function để xử lý bulk deposit
   const handleBulkDeposit = () => {

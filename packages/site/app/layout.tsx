@@ -97,7 +97,7 @@ export default async function RootLayout({
               </div>
               <div className="text-center">
                 <p className="text-base text-gray">© 2025 ZecurePay. All rights reserved.</p>
-                <p className="text-xs mt-1 text-gray">Secure payroll and private payments powered by Zama's FHE technology.</p>
+                <p className="text-xs mt-1 text-gray">Secure payroll and private payments powered by Zama&apos;s FHE technology.</p>
               </div>
             </footer>
           </Providers>

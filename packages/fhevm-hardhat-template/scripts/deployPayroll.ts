@@ -2,7 +2,7 @@ import hre from "hardhat";
 
 async function main() {
   // 👉 Địa chỉ PublicToken (USDT) đã deploy trước đó
-  const PUBLIC_TOKEN_ADDRESS = "0x26D3d5Ec01bfEb3ae023b4729Ae338143d8C81c2";
+  const PUBLIC_TOKEN_ADDRESS = "0xB45079Dbe9A223e77554C7FEe9cc7ed6bAE72503";
 
   console.log("🚀 Deploying Payroll with token:", PUBLIC_TOKEN_ADDRESS);
 

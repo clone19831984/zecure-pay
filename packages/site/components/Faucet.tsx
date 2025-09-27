@@ -16,11 +16,8 @@ export const Faucet = () => {
   const [, setMessage] = useState<string>("");
   const [isMintingUsdt, setIsMintingUsdt] = useState<boolean>(false);
   const {
-    instance: fhevmInstance,
     status: fhevmStatus,
     error: fhevmError,
-    provider,
-    chainId,
     isConnected,
     ethersSigner,
     ethersReadonlyProvider,

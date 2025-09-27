@@ -4,5 +4,5 @@
   Command: 'npm run genabi'
 */
 export const PayrollAddresses = { 
-  "11155111": { address: "0xcFdbEADFaAF20c9a05AA7b05224F1611B5312362", chainId: 11155111, chainName: "sepolia" },
+  "11155111": { address: "0x763223953d481821f4CeD2096b3124F2b07031A8", chainId: 11155111, chainName: "sepolia" },
 };
