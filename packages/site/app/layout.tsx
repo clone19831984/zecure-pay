@@ -6,8 +6,8 @@ import { WalletButton } from "@/components/WalletButton";
 import { TabNavigation } from "@/components/TabNavigation";
 
 export const metadata: Metadata = {
-  title: "Zama FHEVM SDK Quickstart",
-  description: "Zama FHEVM SDK Quickstart app",
+  title: "ZecurePay - Secure Payroll Platform",
+  description: "ZecurePay - Secure payroll platform powered by FHE technology",
 };
 
 export default async function RootLayout({
@@ -26,18 +26,16 @@ export default async function RootLayout({
         <main className="flex flex-col max-w-screen-lg mx-auto pb-20 min-w-[850px] min-h-screen">
           <Providers>
             {/* Header */}
-            <header className="fixed top-0 left-1/2 transform -translate-x-1/2 w-full max-w-screen-lg px-3 md:px-0 h-fit py-5 flex justify-between items-center zama-bg z-50">
-              <div className="flex items-center gap-6">
-                <Image
-                  src="/zama-logo.svg"
-                  alt="Zama Logo"
-                  width={120}
-                  height={120}
-                  priority
-                />
-                <TabNavigation />
+            <header className="fixed top-0 left-0 right-0 w-full h-fit py-5 zama-bg z-50 border-b border-gray-400">
+              <div className="max-w-screen-lg mx-auto px-3 md:px-0 flex justify-between items-center">
+                <div className="flex items-center gap-6">
+                  <h1 className="text-3xl font-bold text-white flex items-center h-10">
+                    ZecurePay
+                  </h1>
+                  <TabNavigation />
+                </div>
+                <WalletButton />
               </div>
-              <WalletButton />
             </header>
 
             {/* Main */}
@@ -46,24 +44,39 @@ export default async function RootLayout({
             </div>
 
             {/* Footer */}
-            <footer className="fixed bottom-0 left-0 right-0 w-full py-6 text-center text-sm text-gray-400 bg-zama-bg">
-              <p>© 2025 Zama. All rights reserved.</p>
-              <div className="flex justify-center gap-4 mt-2">
+            <footer className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-screen-lg px-3 md:px-0 py-6 flex justify-between items-center text-sm text-gray-400 bg-zama-bg">
+              <div className="flex gap-4">
                 <a 
-                  href="https://twitter.com/zama_fhe" 
+                  href="https://x.com/buiminhphat21" 
                   target="_blank" 
                   rel="noreferrer noopener"
                   className="hover:text-white transition-colors"
                 >
-                  Twitter
+                  <button className="p-2 rounded bg-gray-400 hover:bg-orange-500 transition-colors" style={{ borderRadius: '4px' }}>
+                    <Image
+                      src="/x.svg"
+                      alt="Twitter"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                  </button>
                 </a>
                 <a 
-                  href="https://github.com/zama-ai" 
+                  href="https://github.com/clone19831984" 
                   target="_blank" 
                   rel="noreferrer noopener"
                   className="hover:text-white transition-colors"
                 >
-                  GitHub
+                  <button className="p-2 rounded bg-gray-400 hover:bg-orange-500 transition-colors" style={{ borderRadius: '4px' }}>
+                    <Image
+                      src="/github.svg"
+                      alt="GitHub"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                  </button>
                 </a>
                 <a 
                   href="https://zama.ai" 
@@ -71,8 +84,20 @@ export default async function RootLayout({
                   rel="noreferrer noopener"
                   className="hover:text-white transition-colors"
                 >
-                  Website
+                  <button className="p-2 rounded bg-gray-400 hover:bg-orange-500 transition-colors" style={{ borderRadius: '4px' }}>
+                    <Image
+                      src="/discord.svg"
+                      alt="Website"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5"
+                    />
+                  </button>
                 </a>
+              </div>
+              <div className="text-center">
+                <p className="text-base text-gray">© 2025 ZecurePay. All rights reserved.</p>
+                <p className="text-xs mt-1 text-gray">Secure payroll and private payments powered by Zama's FHE technology.</p>
               </div>
             </footer>
           </Providers>

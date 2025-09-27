@@ -3,22 +3,18 @@
 import { useEffect, useState, useCallback } from "react";
 import { ethers } from "ethers";
 import { useFhevmContext } from "../contexts/FhevmContext";
-import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
-import { useTokenFaucet } from "@/hooks/useTokenFaucet";
 
 /*
- * Main TokenFaucet React component
- * - "Mint Token" button: allows user to mint confidential tokens
- * - Shows token balance
- * - Displays contract address and connection status
+ * Main Faucet React component
+ * - "Mint USDT" button: allows user to mint USDT tokens
+ * - Shows ETH and USDT balance
  */
-export const TokenFaucetDemo = () => {
+export const Faucet = () => {
   const [mounted, setMounted] = useState(false);
   const [ethBalance, setEthBalance] = useState<string>("0");
   const [usdtBalance, setUsdtBalance] = useState<string>("0");
   const [, setMessage] = useState<string>("");
   const [isMintingUsdt, setIsMintingUsdt] = useState<boolean>(false);
-  const { storage: fhevmDecryptionSignatureStorage } = useInMemoryStorage();
   const {
     instance: fhevmInstance,
     status: fhevmStatus,
@@ -30,19 +26,6 @@ export const TokenFaucetDemo = () => {
     ethersReadonlyProvider,
   } = useFhevmContext();
 
-  //////////////////////////////////////////////////////////////////////////////
-  // useTokenFaucet hook chứa tất cả logic cho ConfidentialToken
-  // Contract address sẽ được lấy tự động từ chainId
-  //////////////////////////////////////////////////////////////////////////////
-
-  const tokenFaucet = useTokenFaucet({
-    instance: fhevmInstance,
-    fhevmDecryptionSignatureStorage,
-    eip1193Provider: provider,
-    chainId,
-    ethersSigner,
-    ethersReadonlyProvider,
-  });
 
   useEffect(() => {
     setMounted(true);
@@ -167,23 +150,16 @@ export const TokenFaucetDemo = () => {
     return <p className="text-red-600">FHEVM Error: {fhevmError?.message || "Unknown error"}</p>;
   }
 
-  if (tokenFaucet.isDeployed === false) {
-    return (
-      <div className="flex flex-col items-center justify-center p-8">
-        <p className="text-gray-500 text-lg">Loading contract...</p>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col items-center justify-center p-8">
       {/* Token Faucet Card */}
-      <div className="mb-8 w-full max-w-4xl border border-gray-300 rounded-lg p-6 bg-white shadow-md">
+      <div className="mb-8 w-full max-w-2xl border border-gray-300 rounded-lg p-6 bg-white shadow-md">
         <h2 className="text-2xl font-bold mb-4 text-center">Token Faucet</h2>
         
-        {/* Two Column Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Left Column: Your ERC20 Token */}
+        {/* Single Column Layout - chỉ hiển thị ERC20 Token */}
+        <div className="w-full max-w-md mx-auto">
+          {/* Your ERC20 Token */}
           <div>
             <button className="bg-gray-500 text-white font-bold py-2 px-3 rounded w-full text-sm mb-3">
               Your ERC20 Token
@@ -228,91 +204,8 @@ export const TokenFaucetDemo = () => {
               </button>
             </div>
           </div>
-
-          {/* Right Column: Your Confidential Token */}
-          <div>
-            <button className="bg-gray-500 text-white font-bold py-2 px-3 rounded w-full text-sm mb-3">
-              Your Confidential Token
-            </button>
-            <div className="flex gap-2 mb-4">
-              <button
-                disabled
-                className="bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded flex-1 cursor-default"
-              >
-                zUSD
-              </button>
-              <button
-                onClick={() => {
-                  if (tokenFaucet.contractAddress) {
-                    navigator.clipboard.writeText(tokenFaucet.contractAddress);
-                    setMessage('Contract address copied to clipboard!');
-                  }
-                }}
-                className="bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded flex-1"
-                title={tokenFaucet.contractAddress || 'Not deployed'}
-              >
-                {tokenFaucet.contractAddress 
-                  ? `${tokenFaucet.contractAddress.slice(0, 6)}...${tokenFaucet.contractAddress.slice(-4)}`
-                  : 'Not deployed'
-                }
-              </button>
-            </div>
-            <div className="flex gap-2 mb-4">
-              <button
-                disabled
-                className="bg-gray-500 text-white font-bold py-2 px-4 rounded flex-1 cursor-not-allowed"
-              >
-                Balance
-              </button>
-              <button
-                disabled
-                className="bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded flex-1 cursor-default"
-              >
-                {tokenFaucet.decryptedBalance ? `${Number(tokenFaucet.decryptedBalance).toLocaleString('en-US', {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 2
-                })} tokens` : 'Encrypted'}
-              </button>
-            </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Mint confidential tokens to your wallet
-            </p>
-            <div className="flex gap-2 mb-4">
-              <button
-                onClick={() => tokenFaucet.airDropToken(BigInt(100) * (BigInt(10) ** BigInt(6)))}
-                disabled={!tokenFaucet.canMint || tokenFaucet.isMinting}
-                className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
-              >
-                {tokenFaucet.isMinting ? 'Minting...' : 'Faucet'}
-              </button>
-              <button
-                onClick={() => tokenFaucet.mintToken(BigInt(100) * (BigInt(10) ** BigInt(6)))}
-                disabled={!tokenFaucet.canMint || tokenFaucet.isMinting}
-                className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
-              >
-                {tokenFaucet.isMinting ? 'Minting...' : 'Mint (Owner)'}
-              </button>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={tokenFaucet.refreshBalance}
-                disabled={!tokenFaucet.contractAddress || tokenFaucet.isRefreshing}
-                className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
-              >
-                {tokenFaucet.isRefreshing ? 'Refreshing...' : 'Refresh Balance'}
-              </button>
-              <button
-                onClick={tokenFaucet.decryptBalance}
-                disabled={!tokenFaucet.contractAddress || !tokenFaucet.balance}
-                className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
-              >
-                Decrypt Balance
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
 };
-

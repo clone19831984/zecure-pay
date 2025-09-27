@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import { useFhevmContext } from "../contexts/FhevmContext";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
-import { usePayrollUSDT } from "../hooks/usePayrollETH";
+import { usePayroll } from "../hooks/usePayroll";
 import { groups, getAllUsers, getGroupByUser, getEmployeeCode } from "../groups";
 
 export const SalaryPayment = () => {
@@ -23,6 +23,10 @@ export const SalaryPayment = () => {
   const {
     status,
     error,
+    payrollStatus,
+    withdrawStatus,
+    balanceStatus,
+    allowDecryptStatus,
     deposit,
     depositToManyUsers,
     withdraw,
@@ -30,7 +34,7 @@ export const SalaryPayment = () => {
     fetchBalance,
     decryptedBalance,
     isOwner,
-  } = usePayrollUSDT({
+  } = usePayroll({
     fhevmInstance,
     ethersSigner,
     ethersReadonlyProvider,
@@ -54,6 +58,13 @@ export const SalaryPayment = () => {
   // State cho chọn từng user riêng lẻ
   const [selectedIndividualUsers, setSelectedIndividualUsers] = useState<string[]>([]);
   const [individualUserAmounts, setIndividualUserAmounts] = useState<Record<string, string>>({});
+  
+  // State cho toggle hiển thị Select Other
+  const [showSelectOther, setShowSelectOther] = useState(false);
+  const [showGroupSelectOther, setShowGroupSelectOther] = useState(false);
+  
+  // State cho refresh balance
+  const [isRefreshingBalance, setIsRefreshingBalance] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -65,38 +76,53 @@ export const SalaryPayment = () => {
     setUserAmounts({});
   }, []);
 
+  // Function để load USDT public balance
+  const loadUsdtBalance = async () => {
+    if (ethersReadonlyProvider && ethersSigner) {
+      try {
+        setIsRefreshingBalance(true);
+        // Import USDT contract addresses and ABI
+        const { PublicTokenAddresses } = await import("../abi/PublicTokenAddresses");
+        const { PublicTokenABI } = await import("../abi/PublicTokenABI");
+        
+        const usdtAddress = PublicTokenAddresses["11155111"]?.address;
+        if (!usdtAddress) {
+          setPublicBalance("0");
+          return;
+        }
+
+        const usdtContract = new ethers.Contract(usdtAddress, PublicTokenABI.abi, ethersReadonlyProvider);
+        const balance = await usdtContract.balanceOf(ethersSigner.address);
+        const usdtBalanceFormatted = ethers.formatUnits(balance, 6); // USDT có 6 decimals
+        const formattedWithCommas = Number(usdtBalanceFormatted).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2
+        });
+        setPublicBalance(formattedWithCommas);
+      } catch (error) {
+        console.error("Error loading USDT balance:", error);
+        setPublicBalance("0");
+      } finally {
+        setIsRefreshingBalance(false);
+      }
+    }
+  };
+
   // Load USDT public balance when component mounts
   useEffect(() => {
-    const loadUsdtBalance = async () => {
-      if (ethersReadonlyProvider && ethersSigner) {
-        try {
-          // Import USDT contract addresses and ABI
-          const { PublicTokenAddresses } = await import("../abi/PublicTokenAddresses");
-          const { PublicTokenABI } = await import("../abi/PublicTokenABI");
-          
-          const usdtAddress = PublicTokenAddresses["11155111"]?.address;
-          if (!usdtAddress) {
-            setPublicBalance("0");
-            return;
-          }
-
-          const usdtContract = new ethers.Contract(usdtAddress, PublicTokenABI.abi, ethersReadonlyProvider);
-          const balance = await usdtContract.balanceOf(ethersSigner.address);
-          const usdtBalanceFormatted = ethers.formatUnits(balance, 6); // USDT có 6 decimals
-          const formattedWithCommas = Number(usdtBalanceFormatted).toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-          });
-          setPublicBalance(formattedWithCommas);
-        } catch (error) {
-          console.error("Error loading USDT balance:", error);
-          setPublicBalance("0");
-        }
-      }
-    };
-
     loadUsdtBalance();
   }, [ethersReadonlyProvider, ethersSigner]);
+
+  // Auto refresh balance every 30 seconds
+  useEffect(() => {
+    if (!isConnected) return;
+    
+    const interval = setInterval(() => {
+      loadUsdtBalance();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [isConnected, ethersSigner, ethersReadonlyProvider]);
 
   // Function để xử lý bulk deposit
   const handleBulkDeposit = () => {
@@ -131,9 +157,6 @@ export const SalaryPayment = () => {
 
   // Function để gửi lương cho group đã chọn
   const handleGroupPayroll = () => {
-    console.log("handleGroupPayroll called");
-    console.log("selectedUsers:", selectedUsers);
-    console.log("teamAmount:", userAmounts['teamAmount']);
     
     if (selectedUsers.length === 0) {
       alert("Please select a group first");
@@ -149,7 +172,6 @@ export const SalaryPayment = () => {
     // Tạo cùng 1 số tiền cho tất cả user trong team
     const amounts = selectedUsers.map(() => teamAmount);
     
-    console.log("Calling depositToManyUsers with:", selectedUsers, amounts);
     depositToManyUsers(selectedUsers, amounts);
   };
 
@@ -170,9 +192,6 @@ export const SalaryPayment = () => {
 
   // Function để gửi lương cho các user đã chọn
   const handleIndividualPayroll = () => {
-    console.log("handleIndividualPayroll called");
-    console.log("selectedIndividualUsers:", selectedIndividualUsers);
-    console.log("individualUserAmounts:", individualUserAmounts);
     
     if (selectedIndividualUsers.length === 0) {
       alert("Please select at least one user");
@@ -180,7 +199,6 @@ export const SalaryPayment = () => {
     }
 
     const amounts = selectedIndividualUsers.map(user => individualUserAmounts[user] || "0");
-    console.log("amounts:", amounts);
     
     // Kiểm tra validation cho từng amount
     const invalidAmounts = amounts.filter(amount => {
@@ -196,15 +214,12 @@ export const SalaryPayment = () => {
     const validUsers = selectedIndividualUsers.filter((user, index) => amounts[index] && amounts[index] !== "0");
     const validAmounts = amounts.filter(amount => amount && amount !== "0");
     
-    console.log("validUsers:", validUsers);
-    console.log("validAmounts:", validAmounts);
 
     if (validUsers.length === 0) {
       alert("Please enter amounts for at least one user");
       return;
     }
 
-    console.log("Calling depositToManyUsers with:", validUsers, validAmounts);
     depositToManyUsers(validUsers, validAmounts);
   };
 
@@ -337,38 +352,55 @@ export const SalaryPayment = () => {
                   <div className="mb-4">
                     <button
                       onClick={handleIndividualPayroll}
-                      disabled={status === "loading"}
+                      disabled={payrollStatus === "loading"}
                       className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
                     >
-                      {status === "loading" ? "Processing..." : `Pay Salaries to ${selectedIndividualUsers.length} Users`}
+                      {payrollStatus === "loading" ? "Processing..." : `Pay Salaries to ${selectedIndividualUsers.length} Users`}
                     </button>
                   </div>
                 )}
 
-                <div className="mb-2">
-                  <label className="block text-sm font-medium mb-2">Select Other:</label>
-                  <input
-                    type="text"
-                    placeholder="Recipient address"
-                    value={recipient}
-                    onChange={(e) => setRecipient(e.target.value)}
-                    className="border p-2 rounded w-full text-sm font-bold h-10"
-                  />
+                {/* Select Other - Collapsible */}
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <input
+                      type="checkbox"
+                      id="showSelectOther"
+                      checked={showSelectOther}
+                      onChange={(e) => setShowSelectOther(e.target.checked)}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="showSelectOther" className="text-sm font-medium cursor-pointer">
+                      Select Other:
+                    </label>
+                  </div>
+                  
+                  {showSelectOther && (
+                    <div className="space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Recipient address"
+                        value={recipient}
+                        onChange={(e) => setRecipient(e.target.value)}
+                        className="border p-2 rounded w-full text-sm font-bold h-10"
+                      />
+                      <input
+                        type="text"
+                        placeholder="Amount"
+                        value={amount || ""}
+                        onChange={(e) => setAmount(e.target.value)}
+                        className="border p-2 rounded w-full text-sm font-bold h-10 placeholder-gray-400"
+                      />
+                      <button
+                        onClick={() => deposit(recipient, amount)}
+                        disabled={payrollStatus === "loading"}
+                        className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
+                      >
+                        {payrollStatus === "loading" ? "Processing..." : "Pay Salary"}
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <input
-                  type="text"
-                  placeholder="Amount in USDT"
-                  value={amount || ""}
-                  onChange={(e) => setAmount(e.target.value)}
-                  className="border p-2 rounded w-full mb-3 text-sm font-bold h-10"
-                />
-                <button
-                  onClick={() => deposit(recipient, amount)}
-                  disabled={status === "loading"}
-                  className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
-                >
-                  {status === "loading" ? "Processing..." : "Pay Salary"}
-                </button>
               </div>
             </div>
 
@@ -443,45 +475,56 @@ export const SalaryPayment = () => {
                 {selectedUsers.length > 0 && (
                   <button
                     onClick={handleGroupPayroll}
-                    disabled={status === "loading"}
+                    disabled={payrollStatus === "loading"}
                     className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
                   >
-                    {status === "loading" ? "Processing..." : `Pay Salaries to ${selectedGroup}`}
+                    {payrollStatus === "loading" ? "Processing..." : `Pay Salaries to ${selectedGroup}`}
                   </button>
                 )}
               </div>
 
-              {/* Bulk Salary Payment Section */}
+              {/* Bulk Salary Payment Section - Collapsible */}
               <div className="mb-6">
-                <div className="mb-0 mt-0">
-                  <label className="block text-sm font-medium mb-2">Select Other:</label>
-                  <textarea
-                    placeholder="0x123..., 0x456..., 0x789..."
-                    value={bulkRecipients}
-                    onChange={(e) => setBulkRecipients(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded mb-0 text-sm h-[88px]"
-                    rows={3}
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="showGroupSelectOther"
+                    checked={showGroupSelectOther}
+                    onChange={(e) => setShowGroupSelectOther(e.target.checked)}
+                    className="w-4 h-4"
                   />
+                  <label htmlFor="showGroupSelectOther" className="text-sm font-medium cursor-pointer">
+                    Select Other:
+                  </label>
                 </div>
                 
-                <div className="mb-0">
-                  <label className="block text-sm font-medium mb-2">Amounts (USDT):</label>
-                  <textarea
-                    placeholder="100, 200, 150"
-                    value={bulkAmounts}
-                    onChange={(e) => setBulkAmounts(e.target.value)}
-                    className="w-full p-2 border border-gray-300 rounded mb-2 text-sm h-20"
-                    rows={2}
-                  />
-                </div>
-                
-                <button
-                  onClick={handleBulkDeposit}
-                  disabled={status === "loading"}
-                  className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
-                >
-                  {status === "loading" ? "Processing..." : "Pay Salaries to All"}
-                </button>
+                {showGroupSelectOther && (
+                  <div className="space-y-2">
+                    <textarea
+                      placeholder="0x123..., 0x456..., 0x789..."
+                      value={bulkRecipients}
+                      onChange={(e) => setBulkRecipients(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded text-sm h-[88px]"
+                      rows={3}
+                    />
+                    
+                    <textarea
+                      placeholder="100, 200, 150"
+                      value={bulkAmounts}
+                      onChange={(e) => setBulkAmounts(e.target.value)}
+                      className="w-full p-2 border border-gray-300 rounded text-sm h-20"
+                      rows={2}
+                    />
+                    
+                    <button
+                      onClick={handleBulkDeposit}
+                      disabled={payrollStatus === "loading"}
+                      className="zama-yellow text-black font-bold py-2 px-4 rounded w-full text-sm"
+                    >
+                      {payrollStatus === "loading" ? "Processing..." : "Pay Salaries to All"}
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -507,7 +550,11 @@ export const SalaryPayment = () => {
                   </button>
                   <button
                     disabled
-                    className="bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded flex-1 cursor-default"
+                    className={`bg-gray-100 font-bold py-2 px-4 rounded flex-1 cursor-default ${
+                      decryptedBalance !== undefined 
+                        ? 'text-gray-800' 
+                        : 'text-gray-400'
+                    }`}
                   >
                     {decryptedBalance !== undefined ? Number(decryptedBalance).toLocaleString('en-US', {
                       minimumFractionDigits: 2,
@@ -518,17 +565,17 @@ export const SalaryPayment = () => {
                 <div className="flex gap-6">
                   <button
                     onClick={allowDecryptForMe}
-                    disabled={status === "loading"}
+                    disabled={allowDecryptStatus === "loading"}
                     className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
                   >
-                    Allow Decrypt
+                    {allowDecryptStatus === "loading" ? "Processing..." : "Allow Decrypt"}
                   </button>
                   <button
                     onClick={() => fetchBalance()}
-                    disabled={status === "loading"}
+                    disabled={balanceStatus === "loading"}
                     className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded flex-1"
                   >
-                    {status === "loading" ? "Loading..." : "Fetch Balance"}
+                    {balanceStatus === "loading" ? "Loading..." : "Fetch Balance"}
                   </button>
                 </div>
               </div>
@@ -537,17 +584,17 @@ export const SalaryPayment = () => {
               <div>
                 <input
                   type="text"
-                  placeholder="Amount in USDT"
+                  placeholder="Amount"
                   value={amount || ""}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full p-2 border border-gray-300 rounded text-sm h-10 mb-4"
+                  className="w-full p-2 border border-gray-300 rounded text-sm h-10 mb-4 placeholder-gray-400"
                 />
                 <button
                   onClick={() => withdraw(amount)}
-                  disabled={status === "loading"}
+                  disabled={withdrawStatus === "loading"}
                   className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded w-full"
                 >
-                  {status === "loading" ? "Processing..." : "Withdraw USDT"}
+                  {withdrawStatus === "loading" ? "Processing..." : "Withdraw"}
                 </button>
               </div>
             </div>
@@ -582,7 +629,7 @@ export const SalaryPayment = () => {
                   disabled
                   className="bg-gray-100 text-gray-800 font-bold py-2 px-4 rounded w-full cursor-default"
                 >
-                  {publicBalance}
+                  {isRefreshingBalance ? "Refreshing..." : publicBalance}
                 </button>
               </div>
 
@@ -597,7 +644,7 @@ export const SalaryPayment = () => {
                     placeholder="Address"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    className="flex-1 p-2 border border-gray-300 rounded text-sm h-10"
+                    className="flex-1 p-2 border border-gray-300 rounded text-sm h-10 placeholder-gray-400"
                   />
                   <input
                     type="text"
@@ -609,22 +656,22 @@ export const SalaryPayment = () => {
                         setAmount(numericValue);
                       }
                     }}
-                    className="w-12 p-2 border border-gray-300 rounded text-sm h-10"
+                    className="w-12 p-2 border border-gray-300 rounded text-sm h-10 placeholder-gray-400"
                   />
                 </div>
                 <button
                   onClick={() => deposit(recipient, amount)}
-                  disabled={status === "loading"}
+                  disabled={payrollStatus === "loading"}
                   className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded w-full"
                 >
-                  {status === "loading" ? "Processing..." : "Transfer Public"}
+                  {payrollStatus === "loading" ? "Processing..." : "Public Transfer"}
                 </button>
               </div>
 
               {/* Right Column: FHE Transfer */}
               <div>
                 <button className="bg-gray-500 text-white font-bold py-2 px-4 rounded w-full text-sm mb-3">
-                  Transfer FHE
+                  FHE Transfer
                 </button>
                 <div className="flex gap-1 mb-4">
                   <input
@@ -632,7 +679,7 @@ export const SalaryPayment = () => {
                     placeholder="Address"
                     value={recipient}
                     onChange={(e) => setRecipient(e.target.value)}
-                    className="flex-1 p-2 border border-gray-300 rounded text-sm h-10"
+                    className="flex-1 p-2 border border-gray-300 rounded text-sm h-10 placeholder-gray-400"
                   />
                   <input
                     type="text"
@@ -644,15 +691,15 @@ export const SalaryPayment = () => {
                         setAmount(numericValue);
                       }
                     }}
-                    className="w-12 p-2 border border-gray-300 rounded text-sm h-10"
+                    className="w-12 p-2 border border-gray-300 rounded text-sm h-10 placeholder-gray-400"
                   />
                 </div>
                 <button
                   onClick={() => deposit(recipient, amount)}
-                  disabled={status === "loading"}
+                  disabled={payrollStatus === "loading"}
                   className="zama-yellow disabled:bg-gray-400 text-black font-bold py-2 px-4 rounded w-full"
                 >
-                  {status === "loading" ? "Processing..." : "Transfer FHE"}
+                  {payrollStatus === "loading" ? "Processing..." : "FHE Transfer"}
                 </button>
               </div>
             </div>

@@ -37,7 +37,6 @@ export const WalletButton = () => {
   // Auto switch to Sepolia after connecting
   useEffect(() => {
     if (isConnected && chainId && chainId !== sepolia.id && switchChain) {
-      console.log(`Auto switching from chainId ${chainId} to Sepolia (${sepolia.id})`);
       try {
         switchChain({ chainId: sepolia.id });
       } catch (error) {

@@ -1,10 +1,7 @@
-// Main Demo Components
-export { TokenFaucetDemo } from "./TokenFaucetDemo";
-export { FHEPayroll } from "./FHEPayroll";
+export { Faucet } from "./Faucet";
+export { SubmitPayrollForm } from "./SubmitPayrollForm";
 
-// Utility Components
 export { WalletButton } from "./WalletButton";
 
-// Re-export all components as default
-export * from "./TokenFaucetDemo";
-export * from "./FHEPayroll";
+export * from "./Faucet";
+export * from "./SubmitPayrollForm";

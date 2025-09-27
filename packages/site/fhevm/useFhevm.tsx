@@ -84,7 +84,6 @@ export function useFhevm(parameters: {
     // even if the first useEffect is rendered in the same render-cycle ?
     if (_isRunning === false) {
       // cancelled
-      console.log("cancelled");
       if (_abortControllerRef.current) {
         _abortControllerRef.current.abort();
         _abortControllerRef.current = null;
@@ -129,12 +128,9 @@ export function useFhevm(parameters: {
         signal: thisSignal,
         provider: thisProvider,
         mockChains: thisRpcUrlsByChainId,
-        onStatusChange: (s) =>
-          console.log(`[useFhevm] createFhevmInstance status changed: ${s}`),
+        onStatusChange: (s) => {},
       })
         .then((i) => {
-          console.log(`[useFhevm] createFhevmInstance created!`);
-          //console.log(`completed (runId=${thisRunId})...`);
           if (thisSignal.aborted) return;
 
           // is there a edge case where the assert below would fail ?
@@ -149,7 +145,6 @@ export function useFhevm(parameters: {
           _setStatus("ready");
         })
         .catch((e) => {
-          console.log(`Error Was thrown !!! error... ` + e.name);
           if (thisSignal.aborted) return;
 
           // it's not possible to have a _providerRef modified without a prior abort

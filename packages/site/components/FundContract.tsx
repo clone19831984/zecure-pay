@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useFhevmContext } from "../contexts/FhevmContext";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
-import { usePayrollUSDT } from "../hooks/usePayrollETH";
+import { usePayroll } from "../hooks/usePayroll";
 
 export const FundContract = () => {
   const [mounted, setMounted] = useState(false);
@@ -21,12 +21,15 @@ export const FundContract = () => {
   const {
     status,
     error,
+    depositStatus,
+    withdrawStatus,
+    balanceStatus,
     depositToContract,
     isOwner,
     ownerWithdraw,
     getContractBalance,
     contractBalance,
-  } = usePayrollUSDT({
+  } = usePayroll({
     fhevmInstance,
     ethersSigner,
     ethersReadonlyProvider,
@@ -92,15 +95,12 @@ export const FundContract = () => {
               </div>
               <button
                 onClick={() => getContractBalance()}
-                disabled={status === "loading"}
+                disabled={balanceStatus === "loading"}
                 className="zama-yellow text-black font-bold py-2 px-3 rounded w-full disabled:opacity-50 text-sm"
               >
-                {status === "loading" ? "Loading..." : "Refresh"}
+                {balanceStatus === "loading" ? "Loading..." : "Refresh"}
               </button>
-              <div className="mt-2 text-xs text-gray-500">
-                Status: {status} | Signer: {ethersSigner ? "✅" : "❌"}
-              </div>
-              {status === "loading" && (
+              {balanceStatus === "loading" && (
                 <button
                   onClick={() => window.location.reload()}
                   className="mt-2 zama-yellow text-black text-xs py-1 px-2 rounded"
@@ -129,10 +129,10 @@ export const FundContract = () => {
               />
               <button
                 onClick={() => depositToContract(contractDepositAmount)}
-                disabled={status === "loading"}
+                disabled={depositStatus === "loading"}
                 className="zama-yellow text-black font-bold py-2 px-3 rounded w-full text-sm"
               >
-                {status === "loading" ? "Processing..." : "Deposit"}
+                {depositStatus === "loading" ? "Processing..." : "Deposit"}
               </button>
             </div>
 
@@ -155,10 +155,10 @@ export const FundContract = () => {
               />
               <button
                 onClick={() => ownerWithdraw(withdrawAmount)}
-                disabled={status === "loading"}
+                disabled={withdrawStatus === "loading"}
                 className="zama-yellow text-black font-bold py-2 px-3 rounded w-full text-sm"
               >
-                {status === "loading" ? "Processing..." : "Withdraw"}
+                {withdrawStatus === "loading" ? "Processing..." : "Withdraw"}
               </button>
             </div>
           </div>

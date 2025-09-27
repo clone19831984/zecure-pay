@@ -7,7 +7,7 @@ import { PayrollAddresses } from "@/abi/PayrollAddresses"; // Addresses của Pa
 import { PublicTokenABI } from "@/abi/PublicTokenABI"; // ABI của PublicToken (USDT)
 import { PublicTokenAddresses } from "@/abi/PublicTokenAddresses"; // Addresses của PublicToken
 
-interface UsePayrollUSDTProps {
+interface UsePayrollProps {
   fhevmInstance: any;
   ethersSigner: ethers.Signer | undefined;
   ethersReadonlyProvider: ethers.ContractRunner | undefined;
@@ -15,15 +15,22 @@ interface UsePayrollUSDTProps {
   fhevmDecryptionSignatureStorage: any;
 }
 
-export function usePayrollUSDT({
+export function usePayroll({
   fhevmInstance,
   ethersSigner,
   ethersReadonlyProvider,
   chainId,
   fhevmDecryptionSignatureStorage,
-}: UsePayrollUSDTProps) {
+}: UsePayrollProps) {
   const [status, setStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [error, setError] = useState<string | null>(null);
+  
+  // Separate states for different operations
+  const [depositStatus, setDepositStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [withdrawStatus, setWithdrawStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [balanceStatus, setBalanceStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [payrollStatus, setPayrollStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
+  const [allowDecryptStatus, setAllowDecryptStatus] = useState<"idle" | "loading" | "error" | "success">("idle");
   const [decryptedBalance, setDecryptedBalance] = useState<string | undefined>();
   const [users, setUsers] = useState<string[]>([]);
   const [isOwner, setIsOwner] = useState<boolean>(false);
@@ -48,7 +55,7 @@ export function usePayrollUSDT({
     async (amountUsdt: string) => {
       if (!ethersSigner) return;
       try {
-        setStatus("loading");
+        setDepositStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -65,11 +72,11 @@ export function usePayrollUSDT({
         const tx = await contract.fundContract(amount);
         await tx.wait();
 
-        setStatus("success");
+        setDepositStatus("success");
       } catch (err: any) {
         console.error(err);
         setError(err.message);
-        setStatus("error");
+        setDepositStatus("error");
       }
     },
     [ethersSigner, getContract, getTokenContract, CONTRACT_ADDRESS]
@@ -80,7 +87,7 @@ export function usePayrollUSDT({
     async (user: string, amountUsdt: string) => {
       if (!fhevmInstance || !ethersSigner || !chainId) return;
       try {
-        setStatus("loading");
+        setPayrollStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -96,13 +103,13 @@ export function usePayrollUSDT({
         const tx = await contract.sendToUser(user, encryptedAmount.handles[0], encryptedAmount.inputProof);
         await tx.wait();
 
-        setStatus("success");
+        setPayrollStatus("success");
         // Refresh contract balance sau khi trả lương
         await getContractBalance();
       } catch (err: any) {
         console.error(err);
         setError(err.message);
-        setStatus("error");
+        setPayrollStatus("error");
       }
     },
     [fhevmInstance, ethersSigner, chainId, getContract]
@@ -111,10 +118,6 @@ export function usePayrollUSDT({
   /// Owner trả lương cho nhiều user cùng lúc
   const depositToManyUsers = useCallback(
     async (recipients: string[], amounts: string[]) => {
-      console.log("depositToManyUsers called with:", recipients, amounts);
-      console.log("fhevmInstance:", !!fhevmInstance);
-      console.log("ethersSigner:", !!ethersSigner);
-      console.log("chainId:", chainId);
       
       if (!fhevmInstance || !ethersSigner || !chainId) {
         console.error("Missing required dependencies:", { fhevmInstance: !!fhevmInstance, ethersSigner: !!ethersSigner, chainId });
@@ -122,7 +125,7 @@ export function usePayrollUSDT({
       }
       
       try {
-        setStatus("loading");
+        setPayrollStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -136,35 +139,26 @@ export function usePayrollUSDT({
           throw new Error("Recipients and amounts length mismatch");
         }
 
-        console.log("Creating encrypted inputs...");
         // Tạo 1 encrypted input duy nhất cho tất cả amounts
         const input = fhevmInstance.createEncryptedInput(CONTRACT_ADDRESS, await ethersSigner.getAddress());
         
         // Add tất cả amounts vào cùng 1 input
         for (let i = 0; i < amounts.length; i++) {
-          console.log(`Adding amount ${i}:`, amounts[i]);
           input.add128(ethers.parseUnits(amounts[i], 6)); // USDT có 6 decimals
         }
         
         // Encrypt 1 lần duy nhất để có 1 proof cho tất cả
         const encrypted = await input.encrypt();
-        console.log("Encrypted handles:", encrypted.handles);
-        console.log("Input proof:", encrypted.inputProof);
         
         // Tạo mảng handles cho contract (mỗi user 1 handle)
         const encryptedAmounts = encrypted.handles;
 
-        console.log("Calling contract sendToManyUsers...");
-        console.log("encryptedAmounts length:", encryptedAmounts.length);
-        console.log("recipients length:", recipients.length);
-        console.log("Using single proof for all inputs");
         
         // Kiểm tra contract balance trước khi gọi
         try {
           const tokenContract = getTokenContract();
           if (tokenContract) {
             const balance = await tokenContract.balanceOf(CONTRACT_ADDRESS);
-            console.log("Contract USDT balance:", ethers.formatUnits(balance, 6));
           }
         } catch (err) {
           console.warn("Could not check contract balance:", err);
@@ -172,11 +166,9 @@ export function usePayrollUSDT({
         
         // Gọi contract với tất cả encrypted amounts và 1 proof duy nhất
         const tx = await contract.sendToManyUsers(recipients, encryptedAmounts, encrypted.inputProof);
-        console.log("Transaction sent:", tx.hash);
         await tx.wait();
-        console.log("Transaction confirmed");
 
-        setStatus("success");
+        setPayrollStatus("success");
         // Refresh contract balance sau khi trả lương
         if (ethersSigner) {
           try {
@@ -192,7 +184,7 @@ export function usePayrollUSDT({
       } catch (err: any) {
         console.error("Error in depositToManyUsers:", err);
         setError(err.message);
-        setStatus("error");
+        setPayrollStatus("error");
       }
     },
     [fhevmInstance, ethersSigner, chainId, getContract, getTokenContract, CONTRACT_ADDRESS]
@@ -203,7 +195,7 @@ export function usePayrollUSDT({
     async (amountUsdt: string) => {
       if (!fhevmInstance || !ethersSigner || !chainId) return;
       try {
-        setStatus("loading");
+        setWithdrawStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -222,11 +214,11 @@ export function usePayrollUSDT({
         );
         await tx.wait();
 
-        setStatus("success");
+        setWithdrawStatus("success");
       } catch (err: any) {
         console.error(err);
         setError(err.message);
-        setStatus("error");
+        setWithdrawStatus("error");
       }
     },
     [fhevmInstance, ethersSigner, chainId, getContract]
@@ -236,13 +228,16 @@ export function usePayrollUSDT({
   const allowDecryptForMe = useCallback(async () => {
     if (!ethersSigner) return;
     try {
+      setAllowDecryptStatus("loading");
       const contract = getContract();
       if (!contract) throw new Error("Contract not available");
 
       const tx = await contract.allowDecryptForMe();
       await tx.wait();
+      setAllowDecryptStatus("success");
     } catch (err) {
       console.error(err);
+      setAllowDecryptStatus("error");
     }
   }, [ethersSigner, getContract]);
 
@@ -265,7 +260,7 @@ export function usePayrollUSDT({
     async () => {
       if (!fhevmInstance || !ethersSigner || !chainId) return;
       try {
-        setStatus("loading");
+        setBalanceStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -321,15 +316,15 @@ export function usePayrollUSDT({
         const weiBn = result[handle]; // giá trị wei dạng BigInt/string
         if (typeof weiBn === 'boolean') {
           setError("Invalid balance value");
-          setStatus("error");
+          setBalanceStatus("error");
           return;
         }
         setDecryptedBalance(ethers.formatUnits(weiBn, 6)); // USDT có 6 decimals
-        setStatus("success");
+        setBalanceStatus("success");
       } catch (err) {
         console.error(err);
         setError(err instanceof Error ? err.message : "Failed to fetch balance");
-        setStatus("error");
+        setBalanceStatus("error");
       }
     },
     [fhevmInstance, ethersSigner, chainId, getContract]
@@ -370,7 +365,7 @@ export function usePayrollUSDT({
     async (amountUsdt: string) => {
       if (!ethersSigner) return;
       try {
-        setStatus("loading");
+        setWithdrawStatus("loading");
         setError(null);
 
         const contract = getContract();
@@ -379,13 +374,13 @@ export function usePayrollUSDT({
         const tx = await contract.ownerWithdraw(ethers.parseUnits(amountUsdt, 6)); // USDT có 6 decimals
         await tx.wait();
 
-        setStatus("success");
+        setWithdrawStatus("success");
         // Refresh contract balance sau khi withdraw
         await getContractBalance();
       } catch (err: any) {
         console.error(err);
         setError(err.message);
-        setStatus("error");
+        setWithdrawStatus("error");
       }
     },
     [ethersSigner, getContract]
@@ -397,17 +392,17 @@ export function usePayrollUSDT({
       return;
     }
     try {
-      setStatus("loading");
+      setBalanceStatus("loading");
       const tokenContract = getTokenContract();
       if (!tokenContract) throw new Error("Token contract not available");
 
       const balance = await tokenContract.balanceOf(CONTRACT_ADDRESS);
       const formattedBalance = ethers.formatUnits(balance, 6);
       setContractBalance(formattedBalance);
-      setStatus("success");
+      setBalanceStatus("success");
     } catch (err) {
       console.error("Error in getContractBalance:", err);
-      setStatus("error");
+      setBalanceStatus("error");
       setError(err instanceof Error ? err.message : "Failed to fetch balance");
     }
   }, [ethersSigner, getTokenContract, CONTRACT_ADDRESS]);
@@ -428,6 +423,11 @@ export function usePayrollUSDT({
   return {
     status,
     error,
+    depositStatus,
+    withdrawStatus,
+    balanceStatus,
+    payrollStatus,
+    allowDecryptStatus,
     depositToContract,
     deposit,
     depositToManyUsers,

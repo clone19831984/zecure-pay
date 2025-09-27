@@ -1,7 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-const CONTRACT_NAMES = ["Payroll", "ConfidentialToken", "PublicToken"];
+const CONTRACT_NAMES = ["Payroll", "PublicToken"];
 
 // <root>/packages/fhevm-hardhat-template
 const rel = "../fhevm-hardhat-template";

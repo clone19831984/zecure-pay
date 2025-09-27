@@ -3,7 +3,7 @@
 import { useTab } from "@/contexts/TabContext";
 import { useFhevmContext } from "../contexts/FhevmContext";
 import { useInMemoryStorage } from "../hooks/useInMemoryStorage";
-import { usePayrollUSDT } from "../hooks/usePayrollETH";
+import { usePayroll } from "../hooks/usePayroll";
 
 export const TabNavigation = () => {
   const { activeTab, setActiveTab } = useTab();
@@ -15,7 +15,7 @@ export const TabNavigation = () => {
     chainId,
   } = useFhevmContext();
 
-  const { isOwner } = usePayrollUSDT({
+  const { isOwner } = usePayroll({
     fhevmInstance,
     ethersSigner,
     ethersReadonlyProvider,
@@ -31,7 +31,7 @@ export const TabNavigation = () => {
           className={`font-bold py-2 px-4 rounded transition-colors min-w-[120px] ${
             activeTab === "dashboard"
               ? "zama-yellow text-black"
-              : "text-gray-600 hover:bg-[#ffb243]"
+              : "text-gray hover:bg-[#ffb243]"
           }`}
         >
           Dashboard
@@ -42,7 +42,7 @@ export const TabNavigation = () => {
         className={`font-bold py-2 px-4 rounded transition-colors min-w-[120px] ${
           activeTab === "payment"
             ? "zama-yellow text-black"
-            : "text-gray-600 hover:bg-[#ffb243]"
+            : "text-gray hover:bg-[#ffb243]"
         }`}
       >
         Payment
@@ -52,7 +52,7 @@ export const TabNavigation = () => {
         className={`font-bold py-2 px-4 rounded transition-colors min-w-[120px] ${
           activeTab === "faucet"
             ? "zama-yellow text-black"
-            : "text-gray-600 hover:bg-[#ffb243]"
+            : "text-gray hover:bg-[#ffb243]"
         }`}
       >
         Faucet
